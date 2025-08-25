@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Stack Data Structure - Interactive Presentation</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -10,30 +10,33 @@
     <div class="presentation-container">
         <!-- Header Controls -->
         <header class="presentation-header">
-            <div class="slide-counter">
+            <div class="slide-counter" id="slide-counter" role="button" tabindex="0" aria-label="Slide counter">
                 <span id="current-slide">1</span> / <span id="total-slides">12</span>
             </div>
-            <button type="button" class="fullscreen-btn" id="fullscreen-btn" title="Toggle Fullscreen">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <button type="button" class="fullscreen-btn" id="fullscreen-btn" aria-label="Toggle Fullscreen">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M5 16H8V19H5V16M8 5H5V8H8V5M19 8V5H16V8H19M16 19H19V16H16V19M2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2A10 10 0 0 0 2 12M4 12A8 8 0 0 1 12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12Z"/>
                 </svg>
             </button>
         </header>
 
         <!-- Main Slide Content -->
-        <main class="slide-container" id="slide-container">
+        <main class="slide-container" id="slide-container" role="main">
             <!-- Slide 1: Title -->
-            <div class="slide active" id="slide-1">
+            <div class="slide active" id="slide-1" role="article" aria-labelledby="slide-1-title">
                 <div class="title-slide">
-                    <div class="stack-icon">📚</div>
-                    <h1 class="main-title">STACK DATA STRUCTURE</h1>
+                    <div class="stack-icon" aria-hidden="true">📚</div>
+                    <h1 class="main-title" id="slide-1-title">STACK DATA STRUCTURE</h1>
                     <p class="subtitle">Understanding LIFO and Stack Operations</p>
                 </div>
             </div>
 
             <!-- Slide 2: What is a Stack -->
-            <div class="slide" id="slide-2">
-                <h2 class="slide-title">What is a Stack?</h2>
+            <div class="slide" id="slide-2" role="article" aria-labelledby="slide-2-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">🥞</span>
+                    <h2 class="slide-title" id="slide-2-title">What is a Stack?</h2>
+                </div>
                 <div class="content-box">
                     <ul class="bullet-points">
                         <li>A <strong>linear data structure</strong> that follows <strong>LIFO principle</strong></li>
@@ -45,8 +48,11 @@
             </div>
 
             <!-- Slide 3: LIFO Principle -->
-            <div class="slide" id="slide-3">
-                <h2 class="slide-title">LIFO Principle</h2>
+            <div class="slide" id="slide-3" role="article" aria-labelledby="slide-3-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">🔄</span>
+                    <h2 class="slide-title" id="slide-3-title">LIFO Principle</h2>
+                </div>
                 <div class="content-box">
                     <ul class="bullet-points">
                         <li><strong>LIFO</strong> = <strong>Last In, First Out</strong></li>
@@ -58,42 +64,47 @@
             </div>
 
             <!-- Slide 4: Stack Visualization -->
-            <div class="slide" id="slide-4">
-                <h2 class="slide-title">Stack Visualization</h2>
+            <div class="slide" id="slide-4" role="article" aria-labelledby="slide-4-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">📊</span>
+                    <h2 class="slide-title" id="slide-4-title">Stack Visualization</h2>
+                </div>
                 <div class="stack-visual">
                     <div class="stack-container">
                         <div class="stack-label top-label">TOP ⬆️</div>
-                        <div class="stack-element">Element 4</div>
                         <div class="stack-element">Element 3</div>
                         <div class="stack-element">Element 2</div>
                         <div class="stack-element">Element 1</div>
                         <div class="stack-label bottom-label">BOTTOM ⬇️</div>
                     </div>
-                    <p class="visual-description">Elements are stacked vertically with access only from the top</p>
+                    <p class="visual-description">Elements stacked vertically - access only from TOP</p>
                 </div>
             </div>
 
             <!-- Slide 5: Basic Operations -->
-            <div class="slide" id="slide-5">
-                <h2 class="slide-title">Basic Stack Operations</h2>
+            <div class="slide" id="slide-5" role="article" aria-labelledby="slide-5-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">⚡</span>
+                    <h2 class="slide-title" id="slide-5-title">Basic Stack Operations</h2>
+                </div>
                 <div class="operations-grid">
                     <div class="operation-card">
-                        <div class="operation-icon">⬆️</div>
+                        <div class="operation-icon" aria-hidden="true">⬆️</div>
                         <h3>PUSH</h3>
                         <p><strong>Add</strong> element to the <strong>top</strong> of stack</p>
                     </div>
                     <div class="operation-card">
-                        <div class="operation-icon">⬇️</div>
+                        <div class="operation-icon" aria-hidden="true">⬇️</div>
                         <h3>POP</h3>
                         <p><strong>Remove</strong> element from the <strong>top</strong> of stack</p>
                     </div>
                     <div class="operation-card">
-                        <div class="operation-icon">👁️</div>
+                        <div class="operation-icon" aria-hidden="true">👁️</div>
                         <h3>PEEK/TOP</h3>
                         <p><strong>View</strong> top element without removing it</p>
                     </div>
                     <div class="operation-card">
-                        <div class="operation-icon">❓</div>
+                        <div class="operation-icon" aria-hidden="true">❓</div>
                         <h3>isEmpty</h3>
                         <p><strong>Check</strong> if stack is empty</p>
                     </div>
@@ -101,8 +112,11 @@
             </div>
 
             <!-- Slide 6: PUSH Operation -->
-            <div class="slide" id="slide-6">
-                <h2 class="slide-title">PUSH Operation</h2>
+            <div class="slide" id="slide-6" role="article" aria-labelledby="slide-6-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">⬆️</span>
+                    <h2 class="slide-title" id="slide-6-title">PUSH Operation</h2>
+                </div>
                 <div class="content-box">
                     <div class="steps-list">
                         <div class="step">
@@ -126,8 +140,11 @@
             </div>
 
             <!-- Slide 7: POP Operation -->
-            <div class="slide" id="slide-7">
-                <h2 class="slide-title">POP Operation</h2>
+            <div class="slide" id="slide-7" role="article" aria-labelledby="slide-7-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">⬇️</span>
+                    <h2 class="slide-title" id="slide-7-title">POP Operation</h2>
+                </div>
                 <div class="content-box">
                     <div class="steps-list">
                         <div class="step">
@@ -151,8 +168,11 @@
             </div>
 
             <!-- Slide 8: Implementation Methods -->
-            <div class="slide" id="slide-8">
-                <h2 class="slide-title">Stack Implementation Methods</h2>
+            <div class="slide" id="slide-8" role="article" aria-labelledby="slide-8-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">🔧</span>
+                    <h2 class="slide-title" id="slide-8-title">Stack Implementation Methods</h2>
+                </div>
                 <div class="implementation-grid">
                     <div class="implementation-card">
                         <h3>Array Implementation</h3>
@@ -174,26 +194,29 @@
             </div>
 
             <!-- Slide 9: Real-World Applications -->
-            <div class="slide" id="slide-9">
-                <h2 class="slide-title">Real-World Applications</h2>
+            <div class="slide" id="slide-9" role="article" aria-labelledby="slide-9-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">🌍</span>
+                    <h2 class="slide-title" id="slide-9-title">Real-World Applications</h2>
+                </div>
                 <div class="applications-grid">
                     <div class="application-card">
-                        <div class="app-icon">🌐</div>
+                        <div class="app-icon" aria-hidden="true">🌐</div>
                         <h3>Web Browser</h3>
                         <p><strong>Back/Forward</strong> buttons use stack for page history</p>
                     </div>
                     <div class="application-card">
-                        <div class="app-icon">📝</div>
+                        <div class="app-icon" aria-hidden="true">📝</div>
                         <h3>Text Editors</h3>
                         <p><strong>Undo/Redo</strong> functionality using two stacks</p>
                     </div>
                     <div class="application-card">
-                        <div class="app-icon">⚡</div>
+                        <div class="app-icon" aria-hidden="true">⚡</div>
                         <h3>Function Calls</h3>
                         <p><strong>Programming languages</strong> manage function calls</p>
                     </div>
                     <div class="application-card">
-                        <div class="app-icon">🧮</div>
+                        <div class="app-icon" aria-hidden="true">🧮</div>
                         <h3>Expression Evaluation</h3>
                         <p><strong>Mathematical expressions</strong> and parsing</p>
                     </div>
@@ -201,8 +224,11 @@
             </div>
 
             <!-- Slide 10: Daily Life Examples -->
-            <div class="slide" id="slide-10">
-                <h2 class="slide-title">Examples in Daily Life</h2>
+            <div class="slide" id="slide-10" role="article" aria-labelledby="slide-10-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">🏠</span>
+                    <h2 class="slide-title" id="slide-10-title">Examples in Daily Life</h2>
+                </div>
                 <div class="content-box">
                     <ul class="bullet-points large-bullets">
                         <li><strong>Stack of plates</strong> in cafeteria - take from top 🍽️</li>
@@ -214,8 +240,11 @@
             </div>
 
             <!-- Slide 11: Advantages & Disadvantages -->
-            <div class="slide" id="slide-11">
-                <h2 class="slide-title">Advantages & Disadvantages</h2>
+            <div class="slide" id="slide-11" role="article" aria-labelledby="slide-11-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">⚖️</span>
+                    <h2 class="slide-title" id="slide-11-title">Advantages & Disadvantages</h2>
+                </div>
                 <div class="pros-cons-grid">
                     <div class="pros-card">
                         <h3>✅ Advantages</h3>
@@ -237,9 +266,12 @@
             </div>
 
             <!-- Slide 12: Summary -->
-            <div class="slide" id="slide-12">
+            <div class="slide" id="slide-12" role="article" aria-labelledby="slide-12-title">
+                <div class="slide-header">
+                    <span class="slide-emoji" aria-hidden="true">🎯</span>
+                    <h2 class="slide-title" id="slide-12-title">Summary</h2>
+                </div>
                 <div class="summary-slide">
-                    <h2 class="slide-title">Summary</h2>
                     <div class="content-box">
                         <ul class="bullet-points">
                             <li>Stack follows <strong>LIFO principle</strong> (Last In, First Out)</li>
@@ -256,21 +288,52 @@
             </div>
         </main>
 
-        <!-- Navigation Controls -->
-        <nav class="navigation-controls">
-            <button type="button" class="nav-btn" id="prev-btn" title="Previous Slide">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <!-- Mobile Bottom Navigation -->
+        <nav class="mobile-navigation" role="navigation" aria-label="Slide navigation">
+            <button type="button" class="mobile-nav-btn" id="mobile-prev-btn" aria-label="Previous Slide">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
                 </svg>
-                Previous
+                <span>Previous</span>
             </button>
-            <button type="button" class="nav-btn" id="next-btn" title="Next Slide">
-                Next
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            
+            <div class="mobile-slide-dots" id="slide-dots" aria-label="Slide indicators">
+                <!-- Dots will be generated by JavaScript -->
+            </div>
+            
+            <button type="button" class="mobile-nav-btn" id="mobile-next-btn" aria-label="Next Slide">
+                <span>Next</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
                 </svg>
             </button>
         </nav>
+
+        <!-- Desktop Navigation (Hidden on Mobile) -->
+        <nav class="desktop-navigation" role="navigation" aria-label="Desktop navigation">
+            <button type="button" class="nav-btn" id="prev-btn" aria-label="Previous Slide">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                </svg>
+                Previous
+            </button>
+            <button type="button" class="nav-btn" id="next-btn" aria-label="Next Slide">
+                Next
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+                </svg>
+            </button>
+        </nav>
+
+        <!-- Progress Bar -->
+        <div class="progress-container" aria-hidden="true">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- Swipe Indicator -->
+        <div class="swipe-indicator" id="swipe-indicator" aria-hidden="true">
+            <span>← Swipe to navigate →</span>
+        </div>
     </div>
 
     <script src="app.js"></script>
