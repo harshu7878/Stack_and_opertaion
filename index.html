@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Data Structure - Interactive Presentation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Header Controls -->
+        <header class="presentation-header">
+            <div class="slide-counter">
+                <span id="current-slide">1</span> / <span id="total-slides">12</span>
+            </div>
+            <button type="button" class="fullscreen-btn" id="fullscreen-btn" title="Toggle Fullscreen">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16H8V19H5V16M8 5H5V8H8V5M19 8V5H16V8H19M16 19H19V16H16V19M2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2A10 10 0 0 0 2 12M4 12A8 8 0 0 1 12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12Z"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Main Slide Content -->
+        <main class="slide-container" id="slide-container">
+            <!-- Slide 1: Title -->
+            <div class="slide active" id="slide-1">
+                <div class="title-slide">
+                    <div class="stack-icon">📚</div>
+                    <h1 class="main-title">STACK DATA STRUCTURE</h1>
+                    <p class="subtitle">Understanding LIFO and Stack Operations</p>
+                </div>
+            </div>
+
+            <!-- Slide 2: What is a Stack -->
+            <div class="slide" id="slide-2">
+                <h2 class="slide-title">What is a Stack?</h2>
+                <div class="content-box">
+                    <ul class="bullet-points">
+                        <li>A <strong>linear data structure</strong> that follows <strong>LIFO principle</strong></li>
+                        <li>Like a <strong>stack of plates</strong> - you can only add or remove from the top</li>
+                        <li>Elements are <strong>stored vertically</strong> one on top of another</li>
+                        <li>Access is <strong>restricted to the TOP</strong> element only</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 3: LIFO Principle -->
+            <div class="slide" id="slide-3">
+                <h2 class="slide-title">LIFO Principle</h2>
+                <div class="content-box">
+                    <ul class="bullet-points">
+                        <li><strong>LIFO</strong> = <strong>Last In, First Out</strong></li>
+                        <li>The <strong>last element added</strong> is the <strong>first one removed</strong></li>
+                        <li>Think of a <strong>pile of pancakes</strong> 🥞</li>
+                        <li>You eat the <strong>top pancake first</strong> (last one added)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 4: Stack Visualization -->
+            <div class="slide" id="slide-4">
+                <h2 class="slide-title">Stack Visualization</h2>
+                <div class="stack-visual">
+                    <div class="stack-container">
+                        <div class="stack-label top-label">TOP ⬆️</div>
+                        <div class="stack-element">Element 4</div>
+                        <div class="stack-element">Element 3</div>
+                        <div class="stack-element">Element 2</div>
+                        <div class="stack-element">Element 1</div>
+                        <div class="stack-label bottom-label">BOTTOM ⬇️</div>
+                    </div>
+                    <p class="visual-description">Elements are stacked vertically with access only from the top</p>
+                </div>
+            </div>
+
+            <!-- Slide 5: Basic Operations -->
+            <div class="slide" id="slide-5">
+                <h2 class="slide-title">Basic Stack Operations</h2>
+                <div class="operations-grid">
+                    <div class="operation-card">
+                        <div class="operation-icon">⬆️</div>
+                        <h3>PUSH</h3>
+                        <p><strong>Add</strong> element to the <strong>top</strong> of stack</p>
+                    </div>
+                    <div class="operation-card">
+                        <div class="operation-icon">⬇️</div>
+                        <h3>POP</h3>
+                        <p><strong>Remove</strong> element from the <strong>top</strong> of stack</p>
+                    </div>
+                    <div class="operation-card">
+                        <div class="operation-icon">👁️</div>
+                        <h3>PEEK/TOP</h3>
+                        <p><strong>View</strong> top element without removing it</p>
+                    </div>
+                    <div class="operation-card">
+                        <div class="operation-icon">❓</div>
+                        <h3>isEmpty</h3>
+                        <p><strong>Check</strong> if stack is empty</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: PUSH Operation -->
+            <div class="slide" id="slide-6">
+                <h2 class="slide-title">PUSH Operation</h2>
+                <div class="content-box">
+                    <div class="steps-list">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <p><strong>Step 1:</strong> Check if stack is <strong>full</strong> (Stack Overflow)</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <p><strong>Step 2:</strong> If not full, <strong>increment TOP pointer</strong></p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <p><strong>Step 3:</strong> <strong>Add new element</strong> at TOP position</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <p><strong>Step 4:</strong> Operation <strong>completed successfully</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: POP Operation -->
+            <div class="slide" id="slide-7">
+                <h2 class="slide-title">POP Operation</h2>
+                <div class="content-box">
+                    <div class="steps-list">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <p><strong>Step 1:</strong> Check if stack is <strong>empty</strong> (Stack Underflow)</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <p><strong>Step 2:</strong> If not empty, <strong>store TOP element value</strong></p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <p><strong>Step 3:</strong> <strong>Decrement TOP pointer</strong></p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <p><strong>Step 4:</strong> <strong>Return</strong> the stored value</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8: Implementation Methods -->
+            <div class="slide" id="slide-8">
+                <h2 class="slide-title">Stack Implementation Methods</h2>
+                <div class="implementation-grid">
+                    <div class="implementation-card">
+                        <h3>Array Implementation</h3>
+                        <ul>
+                            <li><strong>Fixed size</strong> - predetermined capacity</li>
+                            <li><strong>Simple</strong> and easy to implement</li>
+                            <li><strong>Fast access</strong> with index</li>
+                        </ul>
+                    </div>
+                    <div class="implementation-card">
+                        <h3>Linked List Implementation</h3>
+                        <ul>
+                            <li><strong>Dynamic size</strong> - grows as needed</li>
+                            <li><strong>Flexible</strong> memory allocation</li>
+                            <li><strong>No overflow</strong> (until memory runs out)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Real-World Applications -->
+            <div class="slide" id="slide-9">
+                <h2 class="slide-title">Real-World Applications</h2>
+                <div class="applications-grid">
+                    <div class="application-card">
+                        <div class="app-icon">🌐</div>
+                        <h3>Web Browser</h3>
+                        <p><strong>Back/Forward</strong> buttons use stack for page history</p>
+                    </div>
+                    <div class="application-card">
+                        <div class="app-icon">📝</div>
+                        <h3>Text Editors</h3>
+                        <p><strong>Undo/Redo</strong> functionality using two stacks</p>
+                    </div>
+                    <div class="application-card">
+                        <div class="app-icon">⚡</div>
+                        <h3>Function Calls</h3>
+                        <p><strong>Programming languages</strong> manage function calls</p>
+                    </div>
+                    <div class="application-card">
+                        <div class="app-icon">🧮</div>
+                        <h3>Expression Evaluation</h3>
+                        <p><strong>Mathematical expressions</strong> and parsing</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: Daily Life Examples -->
+            <div class="slide" id="slide-10">
+                <h2 class="slide-title">Examples in Daily Life</h2>
+                <div class="content-box">
+                    <ul class="bullet-points large-bullets">
+                        <li><strong>Stack of plates</strong> in cafeteria - take from top 🍽️</li>
+                        <li><strong>Pile of books</strong> on your desk - add/remove from top 📚</li>
+                        <li><strong>Browser history</strong> - back button goes to last page 🔙</li>
+                        <li><strong>Undo in text editor</strong> - undoes last action first ↶</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 11: Advantages & Disadvantages -->
+            <div class="slide" id="slide-11">
+                <h2 class="slide-title">Advantages & Disadvantages</h2>
+                <div class="pros-cons-grid">
+                    <div class="pros-card">
+                        <h3>✅ Advantages</h3>
+                        <ul>
+                            <li><strong>Simple</strong> and easy to understand</li>
+                            <li><strong>Efficient</strong> - O(1) time for push/pop operations</li>
+                            <li><strong>Memory efficient</strong> - only stores what's needed</li>
+                        </ul>
+                    </div>
+                    <div class="cons-card">
+                        <h3>❌ Disadvantages</h3>
+                        <ul>
+                            <li><strong>Limited access</strong> - only top element accessible</li>
+                            <li><strong>No random access</strong> to middle elements</li>
+                            <li><strong>Fixed size</strong> (in array implementation)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 12: Summary -->
+            <div class="slide" id="slide-12">
+                <div class="summary-slide">
+                    <h2 class="slide-title">Summary</h2>
+                    <div class="content-box">
+                        <ul class="bullet-points">
+                            <li>Stack follows <strong>LIFO principle</strong> (Last In, First Out)</li>
+                            <li><strong>Four main operations:</strong> Push, Pop, Peek, isEmpty</li>
+                            <li><strong>Two implementations:</strong> Array and Linked List</li>
+                            <li><strong>Wide applications:</strong> Browser history, Undo/Redo, Function calls</li>
+                            <li><strong>Efficient</strong> and <strong>simple</strong> data structure</li>
+                        </ul>
+                        <div class="thank-you">
+                            <h3>Thank You! 🎉</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navigation Controls -->
+        <nav class="navigation-controls">
+            <button type="button" class="nav-btn" id="prev-btn" title="Previous Slide">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                </svg>
+                Previous
+            </button>
+            <button type="button" class="nav-btn" id="next-btn" title="Next Slide">
+                Next
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+                </svg>
+            </button>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
