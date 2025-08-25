@@ -1,90 +1,69 @@
-// Responsive Stack Data Structure Presentation JavaScript
+// FIXED Mobile-Responsive Stack Data Structure Presentation
 
-class ResponsiveStackPresentation {
+class MobileStackPresentation {
     constructor() {
         this.currentSlide = 1;
-        this.totalSlides = 12;
+        this.totalSlides = 13;
         this.isFullscreen = false;
+        this.isMobile = this.detectMobile();
         this.touchStartX = 0;
         this.touchStartY = 0;
         this.touchEndX = 0;
         this.touchEndY = 0;
-        this.isSwiping = false;
-        this.swipeThreshold = 30; // Reduced threshold for better sensitivity
-        this.isTransitioning = false;
+        this.touchStartTime = 0;
+        this.isAnimating = false;
+        this.isTouching = false;
+        this.swipeThreshold = 50;
+        this.swipeTimeThreshold = 500;
+        this.swipeMinVelocity = 0.3;
         
-        // Device detection
-        this.isMobile = this.detectMobile();
-        this.isTablet = this.detectTablet();
+        this.init();
+    }
+
+    init() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setup());
+        } else {
+            this.setup();
+        }
+    }
+
+    setup() {
+        this.initializeElements();
+        this.setupEventListeners();
+        this.createProgressDots();
+        this.updateUI();
+        this.setupMobileOptimizations();
+        this.hideSwipeHintAfterDelay();
         
-        // Initialize after DOM is ready
-        this.initializeWhenReady();
+        console.log('Mobile Stack Presentation initialized');
+        console.log(`Device: ${this.isMobile ? 'Mobile' : 'Desktop'}`);
     }
 
     detectMobile() {
-        return window.innerWidth <= 768 || 
-               /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-
-    detectTablet() {
-        return window.innerWidth >= 768 && window.innerWidth <= 1024;
-    }
-
-    initializeWhenReady() {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(() => this.initialize(), 150);
-            });
-        } else {
-            setTimeout(() => this.initialize(), 150);
-        }
-    }
-
-    initialize() {
-        console.log('Initializing Responsive Stack Presentation...');
+        const userAgent = navigator.userAgent.toLowerCase();
+        const mobileKeywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone'];
+        const hasMobileUserAgent = mobileKeywords.some(keyword => userAgent.includes(keyword));
+        const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isSmallScreen = window.innerWidth <= 768;
         
-        try {
-            this.initializeElements();
-            this.createSlideDots(); // Create dots before setting up listeners
-            this.setupEventListeners();
-            this.setupTouchGestures();
-            this.updateUI();
-            this.setupResponsiveFeatures();
-            this.showInitialSwipeHint();
-            
-            console.log('Presentation initialized successfully:', {
-                isMobile: this.isMobile,
-                isTablet: this.isTablet,
-                totalSlides: this.totalSlides,
-                dotsCreated: document.querySelectorAll('.slide-dot').length
-            });
-        } catch (error) {
-            console.error('Error initializing presentation:', error);
-        }
+        return hasMobileUserAgent || hasTouch || isSmallScreen;
     }
 
     initializeElements() {
-        // Main elements
         this.slideContainer = document.getElementById('slide-container');
         this.slides = document.querySelectorAll('.slide');
-        this.presentationContainer = document.querySelector('.presentation-container');
-        
-        // Navigation elements
-        this.mobileNavPrev = document.getElementById('mobile-prev-btn');
-        this.mobileNavNext = document.getElementById('mobile-next-btn');
-        this.desktopNavPrev = document.getElementById('prev-btn');
-        this.desktopNavNext = document.getElementById('next-btn');
-        
-        // UI elements
-        this.slideCounter = document.getElementById('slide-counter');
+        this.prevBtn = document.getElementById('prev-btn');
+        this.nextBtn = document.getElementById('next-btn');
+        this.fullscreenBtn = document.getElementById('fullscreen-btn');
+        this.slideCounterBtn = document.getElementById('slide-counter-btn');
         this.currentSlideSpan = document.getElementById('current-slide');
         this.totalSlidesSpan = document.getElementById('total-slides');
-        this.fullscreenBtn = document.getElementById('fullscreen-btn');
-        this.progressBar = document.getElementById('progress-bar');
-        this.slideDotsContainer = document.getElementById('slide-dots');
-        this.swipeIndicator = document.getElementById('swipe-indicator');
+        this.presentationContainer = document.querySelector('.presentation-container');
+        this.progressDotsContainer = document.getElementById('progress-dots');
+        this.swipeHint = document.getElementById('swipe-hint');
         
-        // Set total slides
+        // Set total slides display
         if (this.totalSlidesSpan) {
             this.totalSlidesSpan.textContent = this.totalSlides;
         }
@@ -95,284 +74,291 @@ class ResponsiveStackPresentation {
         });
         
         console.log('Elements initialized:', {
-            slideContainer: !!this.slideContainer,
             slides: this.slides.length,
-            slideDotsContainer: !!this.slideDotsContainer,
-            mobileNavButtons: !!(this.mobileNavPrev && this.mobileNavNext),
-            fullscreenBtn: !!this.fullscreenBtn
+            prevBtn: !!this.prevBtn,
+            nextBtn: !!this.nextBtn,
+            isMobile: this.isMobile
         });
     }
 
-    createSlideDots() {
-        if (!this.slideDotsContainer) {
-            console.warn('Slide dots container not found');
-            return;
-        }
-        
-        // Clear existing dots
-        this.slideDotsContainer.innerHTML = '';
-        
-        // Create dots for each slide
-        for (let i = 1; i <= this.totalSlides; i++) {
-            const dot = document.createElement('button');
-            dot.className = 'slide-dot';
-            dot.setAttribute('aria-label', `Go to slide ${i}`);
-            dot.setAttribute('data-slide', i);
-            dot.type = 'button';
-            
-            // Set initial active state
-            if (i === 1) {
-                dot.classList.add('active');
-            }
-            
-            // Add click handler
-            dot.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(`Slide dot ${i} clicked`);
-                this.goToSlide(i);
-            });
-            
-            // Add touch handlers for better mobile experience
-            dot.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                dot.style.transform = 'scale(1.3)';
-            });
-            
-            dot.addEventListener('touchend', (e) => {
-                setTimeout(() => {
-                    dot.style.transform = 'scale(1)';
-                }, 100);
-            });
-            
-            this.slideDotsContainer.appendChild(dot);
-        }
-        
-        console.log(`Created ${this.totalSlides} slide dots`);
-        
-        // Verify dots are visible
-        const createdDots = this.slideDotsContainer.querySelectorAll('.slide-dot');
-        console.log('Dots created and visible:', createdDots.length);
-        
-        // Force a reflow to ensure dots are rendered
-        this.slideDotsContainer.offsetHeight;
-    }
-
     setupEventListeners() {
-        console.log('Setting up event listeners...');
-        
-        // Mobile navigation
-        if (this.mobileNavPrev) {
-            this.mobileNavPrev.addEventListener('click', (e) => {
+        // FIXED: Navigation buttons with better error handling
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Mobile previous button clicked');
+                console.log('Previous button clicked');
                 this.previousSlide();
             });
+            console.log('Previous button listener attached');
+        } else {
+            console.error('Previous button not found!');
         }
         
-        if (this.mobileNavNext) {
-            this.mobileNavNext.addEventListener('click', (e) => {
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Mobile next button clicked');
+                console.log('Next button clicked');
                 this.nextSlide();
             });
+            console.log('Next button listener attached');
+        } else {
+            console.error('Next button not found!');
         }
         
-        // Desktop navigation
-        if (this.desktopNavPrev) {
-            this.desktopNavPrev.addEventListener('click', (e) => {
+        // Slide counter for jumping to slides
+        if (this.slideCounterBtn) {
+            this.slideCounterBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                this.previousSlide();
+                this.showSlideJumpDialog();
             });
         }
         
-        if (this.desktopNavNext) {
-            this.desktopNavNext.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.nextSlide();
-            });
-        }
+        // Fullscreen functionality
+        this.setupFullscreenEvents();
         
-        // Fullscreen toggle with better handling
-        if (this.fullscreenBtn) {
-            this.fullscreenBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Fullscreen button clicked');
-                this.toggleFullscreen();
-            });
-        }
-        
-        // Slide counter tap
-        if (this.slideCounter) {
-            this.slideCounter.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.showSlideProgress();
-            });
-        }
+        // Touch/swipe events
+        this.setupTouchEvents();
         
         // Keyboard navigation
         document.addEventListener('keydown', (e) => this.handleKeyNavigation(e));
         
         // Fullscreen change events
-        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event => {
-            document.addEventListener(event, () => this.handleFullscreenChange());
-        });
+        this.setupFullscreenChangeEvents();
         
         // Orientation and resize handling
         window.addEventListener('orientationchange', () => {
             setTimeout(() => this.handleOrientationChange(), 100);
         });
         
-        window.addEventListener('resize', () => this.handleResize());
+        window.addEventListener('resize', this.debounce(() => {
+            this.handleResize();
+        }, 250));
         
-        console.log('Event listeners setup complete');
+        console.log('All event listeners setup complete');
     }
 
-    setupTouchGestures() {
-        if (!this.slideContainer) {
-            console.warn('No slide container found for touch gestures');
-            return;
-        }
+    setupFullscreenEvents() {
+        if (!this.fullscreenBtn) return;
         
-        let touchStartTime = 0;
-        let initialTouchX = 0;
-        let initialTouchY = 0;
-        let isVerticalScroll = false;
+        let holdTimeout;
         
-        // Improved touch start handler
-        this.slideContainer.addEventListener('touchstart', (e) => {
-            if (e.touches.length !== 1 || this.isTransitioning) return;
-            
-            const touch = e.touches[0];
-            this.touchStartX = touch.clientX;
-            this.touchStartY = touch.clientY;
-            initialTouchX = touch.clientX;
-            initialTouchY = touch.clientY;
-            touchStartTime = Date.now();
-            this.isSwiping = false;
-            isVerticalScroll = false;
-            
-            console.log('Touch start:', { x: this.touchStartX, y: this.touchStartY });
-            
-            // Hide swipe indicator on first touch
-            if (this.swipeIndicator) {
-                this.swipeIndicator.classList.remove('show');
-            }
-        }, { passive: true });
-        
-        // Improved touch move handler
-        this.slideContainer.addEventListener('touchmove', (e) => {
-            if (e.touches.length !== 1 || this.isTransitioning) return;
-            
-            const touch = e.touches[0];
-            const deltaX = Math.abs(touch.clientX - initialTouchX);
-            const deltaY = Math.abs(touch.clientY - initialTouchY);
-            
-            // Determine scroll direction on first significant movement
-            if (!this.isSwiping && !isVerticalScroll && (deltaX > 5 || deltaY > 5)) {
-                if (deltaX > deltaY && deltaX > 10) {
-                    // Horizontal swipe
-                    this.isSwiping = true;
-                    console.log('Horizontal swipe initiated');
-                } else if (deltaY > deltaX && deltaY > 10) {
-                    // Vertical scroll
-                    isVerticalScroll = true;
-                    console.log('Vertical scroll detected');
+        const startHold = () => {
+            holdTimeout = setTimeout(() => {
+                this.toggleFullscreen();
+                this.showFeedback('Fullscreen toggled');
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
                 }
-            }
-            
-            // Prevent default for horizontal swipes
-            if (this.isSwiping) {
-                e.preventDefault();
-            }
-        }, { passive: false });
+            }, 800);
+        };
         
-        // Improved touch end handler
-        this.slideContainer.addEventListener('touchend', (e) => {
-            if (e.changedTouches.length !== 1 || this.isTransitioning || isVerticalScroll) {
-                this.isSwiping = false;
+        const endHold = () => {
+            clearTimeout(holdTimeout);
+        };
+        
+        // Mouse events
+        this.fullscreenBtn.addEventListener('mousedown', startHold);
+        this.fullscreenBtn.addEventListener('mouseup', endHold);
+        this.fullscreenBtn.addEventListener('mouseleave', endHold);
+        
+        // Touch events
+        this.fullscreenBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startHold();
+        });
+        
+        this.fullscreenBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            endHold();
+        });
+        
+        this.fullscreenBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+        });
+    }
+
+    setupTouchEvents() {
+        if (!this.slideContainer) return;
+        
+        this.slideContainer.addEventListener('touchstart', (e) => {
+            if (this.isScrollableContent(e.target)) {
                 return;
             }
             
-            const touch = e.changedTouches[0];
-            this.touchEndX = touch.clientX;
-            this.touchEndY = touch.clientY;
+            this.isTouching = true;
+            this.touchStartX = e.touches[0].clientX;
+            this.touchStartY = e.touches[0].clientY;
+            this.touchEndX = this.touchStartX;
+            this.touchEndY = this.touchStartY;
+            this.touchStartTime = Date.now();
+            
+            console.log('Touch start:', this.touchStartX, this.touchStartY);
+        }, { passive: true });
+
+        this.slideContainer.addEventListener('touchmove', (e) => {
+            if (!this.isTouching || this.isScrollableContent(e.target)) {
+                return;
+            }
+            
+            this.touchEndX = e.touches[0].clientX;
+            this.touchEndY = e.touches[0].clientY;
             
             const deltaX = this.touchEndX - this.touchStartX;
             const deltaY = Math.abs(this.touchEndY - this.touchStartY);
-            const swipeTime = Date.now() - touchStartTime;
-            const swipeDistance = Math.abs(deltaX);
             
-            console.log('Touch end:', { 
-                deltaX, 
-                deltaY, 
-                swipeTime, 
-                swipeDistance,
-                isSwiping: this.isSwiping,
-                threshold: this.swipeThreshold
-            });
-            
-            // Process swipe if conditions are met
-            if (this.isSwiping && 
-                swipeDistance > this.swipeThreshold && 
-                deltaY < 100 && 
-                swipeTime < 500) {
-                
-                if (deltaX > 0) {
-                    // Swipe right - previous slide
-                    console.log('Swipe right: going to previous slide');
-                    this.previousSlide();
-                } else {
-                    // Swipe left - next slide  
-                    console.log('Swipe left: going to next slide');
-                    this.nextSlide();
-                }
+            if (Math.abs(deltaX) > deltaY && Math.abs(deltaX) > 20) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        this.slideContainer.addEventListener('touchend', (e) => {
+            if (!this.isTouching || this.isScrollableContent(e.target)) {
+                this.isTouching = false;
+                return;
             }
             
-            this.isSwiping = false;
+            this.isTouching = false;
+            
+            const deltaX = this.touchEndX - this.touchStartX;
+            const deltaY = Math.abs(this.touchEndY - this.touchStartY);
+            const deltaTime = Date.now() - this.touchStartTime;
+            
+            console.log('Touch end - deltaX:', deltaX, 'deltaY:', deltaY, 'time:', deltaTime);
+            
+            this.handleSwipe(deltaX, deltaY, deltaTime);
         }, { passive: true });
-        
-        console.log('Touch gestures setup complete with threshold:', this.swipeThreshold);
+
+        this.slideContainer.addEventListener('touchcancel', () => {
+            this.isTouching = false;
+        }, { passive: true });
     }
 
-    setupResponsiveFeatures() {
-        if (this.isMobile) {
-            document.body.classList.add('mobile-device');
+    isScrollableContent(element) {
+        let current = element;
+        while (current && current !== this.slideContainer) {
+            if (current.classList && current.classList.contains('scrollable-content')) {
+                return true;
+            }
+            if (current.closest && current.closest('.scrollable-content')) {
+                return true;
+            }
+            current = current.parentElement;
+        }
+        return false;
+    }
+
+    handleSwipe(deltaX, deltaY, deltaTime) {
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+        const velocity = absX / Math.max(deltaTime, 1);
+        
+        console.log('Handling swipe - absX:', absX, 'absY:', absY, 'velocity:', velocity);
+        
+        const isHorizontalSwipe = absX > absY;
+        const isLongEnoughSwipe = absX > this.swipeThreshold;
+        const isQuickEnoughSwipe = deltaTime < this.swipeTimeThreshold;
+        const hasEnoughVelocity = velocity > this.swipeMinVelocity;
+        
+        if (isHorizontalSwipe && isLongEnoughSwipe && (isQuickEnoughSwipe || hasEnoughVelocity)) {
+            if (deltaX > 0) {
+                console.log('Swipe right - previous slide');
+                this.previousSlide();
+                this.showFeedback('← Previous');
+            } else {
+                console.log('Swipe left - next slide');
+                this.nextSlide();
+                this.showFeedback('Next →');
+            }
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
+        }
+    }
+
+    setupFullscreenChangeEvents() {
+        const events = [
+            'fullscreenchange',
+            'webkitfullscreenchange',
+            'mozfullscreenchange',
+            'MSFullscreenChange'
+        ];
+        
+        events.forEach(event => {
+            document.addEventListener(event, () => this.handleFullscreenChange());
+        });
+    }
+
+    createProgressDots() {
+        if (!this.progressDotsContainer) {
+            console.error('Progress dots container not found!');
+            return;
         }
         
-        // Add enhanced visual feedback
-        const interactiveElements = document.querySelectorAll('.operation-card, .application-card, .implementation-card, .step');
-        interactiveElements.forEach(element => {
-            element.addEventListener('touchstart', function() {
-                this.classList.add('touch-active');
-            });
+        this.progressDotsContainer.innerHTML = '';
+        console.log('Creating progress dots...');
+        
+        for (let i = 1; i <= this.totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'progress-dot';
+            if (i === 1) dot.classList.add('active');
             
-            element.addEventListener('touchend', function() {
-                setTimeout(() => this.classList.remove('touch-active'), 150);
-            });
+            // FIXED: Proper event listener with closure
+            dot.addEventListener('click', ((slideNumber) => {
+                return (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Progress dot clicked for slide:', slideNumber);
+                    this.goToSlide(slideNumber);
+                    this.showFeedback(`Slide ${slideNumber}`);
+                };
+            })(i));
+            
+            this.progressDotsContainer.appendChild(dot);
+            console.log(`Progress dot ${i} created and listener attached`);
+        }
+        
+        console.log('All progress dots created');
+    }
+
+    setupMobileOptimizations() {
+        if (!this.isMobile) return;
+        
+        document.body.classList.add('mobile-device');
+        
+        // Prevent double-tap zoom
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+        
+        // Optimize animations for mobile
+        document.documentElement.style.setProperty('--duration-normal', '200ms');
+        document.documentElement.style.setProperty('--duration-fast', '100ms');
+        
+        // Handle iOS viewport issues
+        const fixViewport = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        
+        fixViewport();
+        window.addEventListener('resize', fixViewport);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(fixViewport, 100);
         });
         
-        console.log('Responsive features setup complete');
-    }
-
-    showInitialSwipeHint() {
-        if (this.isMobile && this.swipeIndicator) {
-            setTimeout(() => {
-                this.swipeIndicator.classList.add('show');
-                setTimeout(() => {
-                    this.swipeIndicator.classList.remove('show');
-                }, 3000);
-            }, 1000);
-        }
+        console.log('Mobile optimizations applied');
     }
 
     handleKeyNavigation(event) {
-        if (this.isTransitioning) return;
+        if (this.isAnimating) return;
         
         switch(event.key) {
             case 'ArrowLeft':
@@ -410,170 +396,148 @@ class ResponsiveStackPresentation {
     }
 
     previousSlide() {
-        if (this.isTransitioning || this.currentSlide <= 1) return;
+        console.log('previousSlide called, current:', this.currentSlide);
+        if (this.isAnimating) {
+            console.log('Animation in progress, ignoring');
+            return;
+        }
+        if (this.currentSlide <= 1) {
+            console.log('Already at first slide');
+            this.showFeedback('Already at first slide');
+            return;
+        }
         this.goToSlide(this.currentSlide - 1);
     }
 
     nextSlide() {
-        if (this.isTransitioning || this.currentSlide >= this.totalSlides) return;
+        console.log('nextSlide called, current:', this.currentSlide);
+        if (this.isAnimating) {
+            console.log('Animation in progress, ignoring');
+            return;
+        }
+        if (this.currentSlide >= this.totalSlides) {
+            console.log('Already at last slide');
+            this.showFeedback('Already at last slide');
+            return;
+        }
         this.goToSlide(this.currentSlide + 1);
     }
 
     goToSlide(slideNumber) {
-        console.log('goToSlide called:', slideNumber, 'from:', this.currentSlide);
+        console.log(`goToSlide called with slideNumber: ${slideNumber}, current: ${this.currentSlide}`);
         
-        if (this.isTransitioning || 
-            slideNumber < 1 || 
-            slideNumber > this.totalSlides || 
-            slideNumber === this.currentSlide) {
+        if (this.isAnimating) {
+            console.log('Animation in progress, ignoring navigation');
+            return;
+        }
+        
+        if (slideNumber < 1 || slideNumber > this.totalSlides) {
+            console.log('Invalid slide number:', slideNumber);
+            return;
+        }
+        
+        if (slideNumber === this.currentSlide) {
+            console.log('Already on target slide');
             return;
         }
 
-        this.isTransitioning = true;
+        this.isAnimating = true;
+        console.log(`Navigating from slide ${this.currentSlide} to slide ${slideNumber}`);
         
         // Hide current slide
         const currentSlideElement = document.getElementById(`slide-${this.currentSlide}`);
         if (currentSlideElement) {
             currentSlideElement.classList.remove('active');
+            console.log('Removed active class from current slide');
         }
 
         // Update current slide number
+        const oldSlide = this.currentSlide;
         this.currentSlide = slideNumber;
 
         // Show new slide
         const newSlideElement = document.getElementById(`slide-${this.currentSlide}`);
         if (newSlideElement) {
-            newSlideElement.classList.add('active');
+            // Small delay for smooth transition
+            setTimeout(() => {
+                newSlideElement.classList.add('active');
+                console.log('Added active class to new slide');
+                
+                // Reset scroll position of new slide content
+                const scrollableContent = newSlideElement.querySelector('.scrollable-content');
+                if (scrollableContent) {
+                    scrollableContent.scrollTop = 0;
+                }
+                
+                // Update UI
+                this.updateUI();
+                
+                // Re-enable navigation after animation
+                setTimeout(() => {
+                    this.isAnimating = false;
+                    console.log('Navigation re-enabled');
+                }, 300);
+            }, 50);
+        } else {
+            console.error('Could not find slide element:', `slide-${this.currentSlide}`);
+            this.currentSlide = oldSlide; // Revert on error
+            this.isAnimating = false;
         }
-
-        // Update all UI elements
-        this.updateUI();
-        
-        // Re-enable transitions after animation
-        setTimeout(() => {
-            this.isTransitioning = false;
-        }, 500);
-        
-        // Announce slide change for accessibility
-        this.announceSlideChange();
     }
 
     updateUI() {
         this.updateSlideCounter();
         this.updateNavigationButtons();
-        this.updateProgressBar();
-        this.updateSlideDots();
+        this.updateProgressDots();
+        console.log('UI updated for slide:', this.currentSlide);
     }
 
     updateSlideCounter() {
         if (this.currentSlideSpan) {
             this.currentSlideSpan.textContent = this.currentSlide;
-            
-            // Add visual feedback
-            if (this.slideCounter) {
-                this.slideCounter.style.transform = 'scale(1.1)';
-                this.slideCounter.style.transition = 'transform 0.2s ease';
-                setTimeout(() => {
-                    this.slideCounter.style.transform = 'scale(1)';
-                }, 200);
-            }
         }
     }
 
     updateNavigationButtons() {
-        const isFirst = this.currentSlide === 1;
-        const isLast = this.currentSlide === this.totalSlides;
+        if (this.prevBtn) {
+            const isDisabled = this.currentSlide === 1;
+            this.prevBtn.disabled = isDisabled;
+            this.prevBtn.style.opacity = isDisabled ? '0.5' : '1';
+        }
         
-        // Update mobile navigation
-        [this.mobileNavPrev, this.desktopNavPrev].forEach(btn => {
-            if (btn) {
-                btn.disabled = isFirst;
-                btn.style.opacity = isFirst ? '0.5' : '1';
-            }
-        });
-        
-        [this.mobileNavNext, this.desktopNavNext].forEach(btn => {
-            if (btn) {
-                btn.disabled = isLast;
-                btn.style.opacity = isLast ? '0.5' : '1';
-            }
-        });
-    }
-
-    updateProgressBar() {
-        if (this.progressBar) {
-            const progress = (this.currentSlide / this.totalSlides) * 100;
-            this.progressBar.style.width = `${progress}%`;
+        if (this.nextBtn) {
+            const isDisabled = this.currentSlide === this.totalSlides;
+            this.nextBtn.disabled = isDisabled;
+            this.nextBtn.style.opacity = isDisabled ? '0.5' : '1';
         }
     }
 
-    updateSlideDots() {
-        const dots = this.slideDotsContainer?.querySelectorAll('.slide-dot');
-        if (dots && dots.length > 0) {
-            dots.forEach((dot, index) => {
-                const isActive = index + 1 === this.currentSlide;
-                dot.classList.toggle('active', isActive);
-                
-                // Add visual feedback for active dot
-                if (isActive) {
-                    dot.style.transform = 'scale(1.2)';
-                    setTimeout(() => {
-                        dot.style.transform = 'scale(1)';
-                    }, 200);
-                }
-            });
-            console.log(`Updated slide dots, active: ${this.currentSlide}`);
-        } else {
-            console.warn('No slide dots found to update');
-        }
-    }
-
-    showSlideProgress() {
-        const progressText = `Slide ${this.currentSlide} of ${this.totalSlides}`;
-        this.showToast(progressText);
-    }
-
-    showToast(message) {
-        // Remove existing toast
-        const existingToast = document.querySelector('.toast-message');
-        if (existingToast) {
-            existingToast.remove();
-        }
+    updateProgressDots() {
+        if (!this.progressDotsContainer) return;
         
-        // Create new toast
-        const toast = document.createElement('div');
-        toast.className = 'toast-message';
-        toast.textContent = message;
-        toast.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
-            z-index: 2000;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
-        
-        document.body.appendChild(toast);
-        
-        requestAnimationFrame(() => {
-            toast.style.opacity = '1';
+        const dots = this.progressDotsContainer.querySelectorAll('.progress-dot');
+        dots.forEach((dot, index) => {
+            const isActive = index + 1 === this.currentSlide;
+            dot.classList.toggle('active', isActive);
         });
+    }
+
+    showSlideJumpDialog() {
+        const slideNum = prompt(
+            `Jump to slide (1-${this.totalSlides}):`,
+            this.currentSlide.toString()
+        );
         
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 2000);
+        const num = parseInt(slideNum, 10);
+        if (!isNaN(num) && num >= 1 && num <= this.totalSlides) {
+            this.goToSlide(num);
+            this.showFeedback(`Jumped to slide ${num}`);
+        } else if (slideNum !== null) {
+            this.showFeedback('Invalid slide number');
+        }
     }
 
     toggleFullscreen() {
-        console.log('Toggle fullscreen, current state:', this.isFullscreen);
         if (this.isFullscreen) {
             this.exitFullscreen();
         } else {
@@ -582,130 +546,179 @@ class ResponsiveStackPresentation {
     }
 
     enterFullscreen() {
-        console.log('Entering fullscreen...');
-        const element = this.presentationContainer || document.documentElement;
+        const element = this.presentationContainer;
         
-        const requestFullscreen = element.requestFullscreen || 
-                                 element.webkitRequestFullscreen || 
-                                 element.mozRequestFullScreen || 
-                                 element.msRequestFullscreen;
+        const requestFullscreen = element.requestFullscreen ||
+                                element.webkitRequestFullscreen ||
+                                element.mozRequestFullScreen ||
+                                element.msRequestFullscreen;
         
         if (requestFullscreen) {
-            requestFullscreen.call(element).then(() => {
-                console.log('Entered fullscreen successfully');
-            }).catch(err => {
-                console.warn('Fullscreen request failed, using fallback:', err);
-                this.fallbackFullscreen();
+            requestFullscreen.call(element).catch(err => {
+                console.log('Fullscreen request failed:', err);
+                this.fallbackFullscreen(true);
             });
         } else {
-            console.log('Fullscreen API not supported, using fallback');
-            this.fallbackFullscreen();
+            this.fallbackFullscreen(true);
         }
     }
 
     exitFullscreen() {
-        console.log('Exiting fullscreen...');
-        const exitFullscreen = document.exitFullscreen || 
-                              document.webkitExitFullscreen || 
-                              document.mozCancelFullScreen || 
-                              document.msExitFullscreen;
+        const exitFullscreen = document.exitFullscreen ||
+                             document.webkitExitFullscreen ||
+                             document.mozCancelFullScreen ||
+                             document.msExitFullscreen;
         
         if (exitFullscreen) {
-            exitFullscreen.call(document).then(() => {
-                console.log('Exited fullscreen successfully');
-            }).catch(err => {
-                console.warn('Exit fullscreen failed, using fallback:', err);
-                this.fallbackExitFullscreen();
+            exitFullscreen.call(document).catch(err => {
+                console.log('Exit fullscreen failed:', err);
+                this.fallbackFullscreen(false);
             });
         } else {
-            this.fallbackExitFullscreen();
+            this.fallbackFullscreen(false);
         }
     }
 
-    fallbackFullscreen() {
-        console.log('Using fallback fullscreen');
-        this.isFullscreen = true;
-        this.presentationContainer.classList.add('fullscreen');
-        document.body.style.overflow = 'hidden';
+    fallbackFullscreen(enter) {
+        this.isFullscreen = enter;
+        this.presentationContainer.classList.toggle('fullscreen', enter);
         this.updateFullscreenButton();
-    }
-
-    fallbackExitFullscreen() {
-        console.log('Using fallback exit fullscreen');
-        this.isFullscreen = false;
-        this.presentationContainer.classList.remove('fullscreen');
-        document.body.style.overflow = '';
-        this.updateFullscreenButton();
+        
+        if (enter && this.isMobile) {
+            setTimeout(() => {
+                window.scrollTo(0, 1);
+            }, 100);
+        }
     }
 
     handleFullscreenChange() {
-        const isInFullscreen = !!(document.fullscreenElement || 
-                                 document.webkitFullscreenElement || 
-                                 document.mozFullScreenElement || 
-                                 document.msFullscreenElement);
+        this.isFullscreen = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement
+        );
         
-        console.log('Fullscreen state changed:', this.isFullscreen, '->', isInFullscreen);
-        this.isFullscreen = isInFullscreen;
         this.updateFullscreenButton();
+        
+        if (this.isMobile) {
+            setTimeout(() => this.handleResize(), 100);
+        }
+        
+        console.log('Fullscreen changed:', this.isFullscreen);
     }
     
     updateFullscreenButton() {
-        if (!this.fullscreenBtn) return;
+        this.presentationContainer.classList.toggle('fullscreen', this.isFullscreen);
         
-        // Clear any stuck states
-        this.fullscreenBtn.blur();
-        
-        if (this.isFullscreen) {
-            this.presentationContainer.classList.add('fullscreen');
-            this.fullscreenBtn.setAttribute('aria-label', 'Exit Fullscreen');
-            this.fullscreenBtn.title = 'Exit Fullscreen (Esc)';
-        } else {
-            this.presentationContainer.classList.remove('fullscreen');
-            this.fullscreenBtn.setAttribute('aria-label', 'Enter Fullscreen');
-            this.fullscreenBtn.title = 'Enter Fullscreen (F)';
+        if (this.fullscreenBtn) {
+            this.fullscreenBtn.title = this.isFullscreen ? 
+                'Hold to exit fullscreen' : 
+                'Hold to enter fullscreen';
         }
     }
 
     handleOrientationChange() {
-        this.isMobile = this.detectMobile();
-        this.isTablet = this.detectTablet();
+        this.handleResize();
         
-        setTimeout(() => {
-            this.updateUI();
-            // Recreate dots if needed after orientation change
-            if (this.slideDotsContainer && this.slideDotsContainer.children.length === 0) {
-                this.createSlideDots();
-            }
-        }, 200);
+        if (this.isMobile) {
+            setTimeout(() => {
+                window.scrollTo(0, 1);
+            }, 500);
+        }
+        
+        console.log('Orientation changed');
     }
 
     handleResize() {
-        clearTimeout(this.resizeTimeout);
-        this.resizeTimeout = setTimeout(() => {
-            this.isMobile = this.detectMobile();
-            this.isTablet = this.detectTablet();
-            this.updateUI();
-        }, 250);
-    }
-
-    announceSlideChange() {
-        let announcement = document.getElementById('slide-announcement');
-        if (!announcement) {
-            announcement = document.createElement('div');
-            announcement.id = 'slide-announcement';
-            announcement.setAttribute('aria-live', 'polite');
-            announcement.setAttribute('aria-atomic', 'true');
-            announcement.className = 'sr-only';
-            document.body.appendChild(announcement);
+        this.isMobile = this.detectMobile();
+        
+        const activeSlide = document.querySelector('.slide.active');
+        if (activeSlide) {
+            const scrollableContent = activeSlide.querySelector('.scrollable-content');
+            if (scrollableContent) {
+                scrollableContent.scrollTop = 0;
+            }
         }
         
-        const slideTitle = document.querySelector(`#slide-${this.currentSlide} .slide-title, #slide-${this.currentSlide} .main-title`);
-        const title = slideTitle ? slideTitle.textContent : `Slide ${this.currentSlide}`;
-        
-        announcement.textContent = `${title}. Slide ${this.currentSlide} of ${this.totalSlides}`;
+        console.log('Resize handled, mobile:', this.isMobile);
     }
 
-    // Public utility methods
+    showFeedback(message) {
+        // Remove existing feedback
+        const existing = document.querySelector('.feedback-message');
+        if (existing) {
+            existing.remove();
+        }
+        
+        // Create feedback element
+        const feedback = document.createElement('div');
+        feedback.className = 'feedback-message';
+        feedback.textContent = message;
+        feedback.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 200px;
+            text-align: center;
+        `;
+        
+        document.body.appendChild(feedback);
+        
+        // Animate in
+        setTimeout(() => {
+            feedback.style.opacity = '1';
+        }, 10);
+        
+        // Remove after delay
+        setTimeout(() => {
+            feedback.style.opacity = '0';
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    feedback.parentNode.removeChild(feedback);
+                }
+            }, 200);
+        }, 1500);
+    }
+
+    hideSwipeHintAfterDelay() {
+        if (this.swipeHint && this.isMobile) {
+            setTimeout(() => {
+                this.swipeHint.style.transition = 'opacity 1s ease';
+                this.swipeHint.style.opacity = '0.3';
+                
+                setTimeout(() => {
+                    this.swipeHint.style.display = 'none';
+                }, 1000);
+            }, 5000);
+        }
+    }
+
+    // Utility functions
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Public API
     getCurrentSlideInfo() {
         return {
             current: this.currentSlide,
@@ -713,8 +726,7 @@ class ResponsiveStackPresentation {
             isFirst: this.currentSlide === 1,
             isLast: this.currentSlide === this.totalSlides,
             isFullscreen: this.isFullscreen,
-            isMobile: this.isMobile,
-            isTablet: this.isTablet
+            isMobile: this.isMobile
         };
     }
 
@@ -726,105 +738,168 @@ class ResponsiveStackPresentation {
 }
 
 // Initialize presentation
-let stackPresentation;
+let presentation;
 
 function initializePresentation() {
-    console.log('Initializing responsive presentation...');
+    console.log('Initializing Mobile Stack Presentation...');
+    presentation = new MobileStackPresentation();
     
-    try {
-        stackPresentation = new ResponsiveStackPresentation();
-        window.stackPresentation = stackPresentation;
-        
-        console.log('Responsive Stack Presentation ready!');
-        console.log('Controls: Swipe, tap buttons, use arrow keys, or tap slide dots');
-        
-    } catch (error) {
-        console.error('Failed to initialize presentation:', error);
+    // Global access for debugging
+    window.stackPresentation = presentation;
+    
+    // Performance monitoring
+    if ('performance' in window) {
+        window.addEventListener('load', () => {
+            console.log('Presentation loaded successfully');
+        });
     }
 }
 
-// Multiple initialization paths
+// Auto-initialize
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializePresentation);
 } else {
     initializePresentation();
 }
 
-// Fallback
-window.addEventListener('load', () => {
-    if (!window.stackPresentation) {
-        console.log('Fallback initialization');
-        initializePresentation();
+// Help dialog for keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'h' || e.key === 'H') && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        showHelpDialog();
     }
 });
 
-// Add enhanced touch styles
-const enhancedStyles = document.createElement('style');
-enhancedStyles.textContent = `
-    .touch-active {
-        transform: scale(0.98) !important;
-        opacity: 0.9 !important;
-        transition: all 0.1s ease !important;
+function showHelpDialog() {
+    const helpText = `Stack Presentation - Controls:
+
+MOBILE GESTURES:
+👆 Tap navigation buttons
+👈👉 Swipe left/right to navigate
+🖐️ Hold fullscreen button to toggle
+📍 Tap progress dots to jump to slides
+📜 Scroll within slides for more content
+
+KEYBOARD SHORTCUTS:
+⬅️➡️ Arrow keys: Navigate slides
+Space: Next slide
+Home/End: First/Last slide
+Ctrl+F: Toggle fullscreen
+Escape: Exit fullscreen
+Ctrl+H: Show this help
+
+FEATURES:
+✅ Works on all smartphones
+✅ Content scrolls within slides
+✅ Touch-optimized navigation
+✅ Responsive design that adapts
+✅ Smooth animations
+✅ Battery efficient`;
+    
+    alert(helpText);
+}
+
+// Additional mobile-specific styles injection
+const mobileStyles = document.createElement('style');
+mobileStyles.textContent = `
+    /* Additional Mobile Safety Styles */
+    .mobile-device {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
     }
     
-    .slide-dot {
-        transition: all 0.2s ease !important;
+    .mobile-device .scrollable-content {
+        /* Allow text selection in scrollable areas */
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+        -webkit-touch-callout: default;
     }
     
-    .slide-dot:active {
-        transform: scale(1.3) !important;
+    /* Ensure proper touch scrolling on iOS */
+    .scrollable-content {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
     }
     
-    .fullscreen-btn {
-        transition: all 0.2s ease !important;
+    /* Prevent text selection outside scrollable areas */
+    .slide-container {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
     
-    .fullscreen-btn:focus {
-        outline: 2px solid rgba(255, 255, 255, 0.8) !important;
-        outline-offset: 2px !important;
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .nav-btn,
+        .fullscreen-btn,
+        .slide-counter {
+            border: 2px solid currentColor;
+        }
+        
+        .progress-dot {
+            border: 1px solid currentColor;
+        }
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        .slide-emoji {
+            animation: none !important;
+        }
+        
+        .closing-message, .question-prompt {
+            animation: none !important;
+        }
+        
+        * {
+            transition-duration: 0.1s !important;
+            animation-duration: 0.1s !important;
+        }
+    }
+    
+    /* Custom properties for viewport units on mobile */
+    :root {
+        --vh: 1vh;
+    }
+    
+    .mobile-device .presentation-container {
+        height: calc(var(--vh, 1vh) * 100);
+        min-height: -webkit-fill-available;
+    }
+    
+    /* Focus indicators for accessibility */
+    .nav-btn:focus-visible,
+    .fullscreen-btn:focus-visible,
+    .slide-counter:focus-visible,
+    .progress-dot:focus-visible {
+        outline: 2px solid white;
+        outline-offset: 2px;
+    }
+    
+    /* Ensure no content overflows viewport */
+    .slide-content * {
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Feedback message styling */
+    .feedback-message {
+        font-family: var(--font-family-base);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 `;
 
-document.head.appendChild(enhancedStyles);
+document.head.appendChild(mobileStyles);
 
-// Global help function
-window.showHelp = function() {
-    const helpText = `Stack Presentation Controls:
-
-Navigation:
-• Swipe left/right (mobile/tablet)
-• Click Next/Previous buttons
-• Use arrow keys or spacebar
-• Click slide dots to jump
-• Tap slide counter for progress
-
-Fullscreen:
-• Click fullscreen button
-• Press F key
-• Press Escape to exit
-
-Accessibility:
-• Screen reader compatible
-• Keyboard navigation
-• ARIA labels included`;
-    
-    if (window.stackPresentation?.isMobile) {
-        window.stackPresentation.showToast('Swipe or tap to navigate');
-    } else {
-        alert(helpText);
-    }
-};
-
-// Debug function
-window.debugSlides = function() {
-    console.log('Debug Info:', {
-        presentation: !!window.stackPresentation,
-        currentSlide: window.stackPresentation?.currentSlide,
-        totalSlides: window.stackPresentation?.totalSlides,
-        slideDots: document.querySelectorAll('.slide-dot').length,
-        activeSlide: document.querySelector('.slide.active')?.id,
-        isMobile: window.stackPresentation?.isMobile
-    });
-};
-
-console.log('Stack Presentation loaded! Try window.showHelp() for controls.');
+console.log('✅ FIXED Mobile Stack Data Structure Presentation loaded!');
+console.log('📱 Navigation buttons now work properly');
+console.log('📍 Progress dots are now clickable');
+console.log('📜 Content scrolls within slides');
+console.log('👆 All touch interactions work');
+console.log('⌨️ Press Ctrl+H for help');
